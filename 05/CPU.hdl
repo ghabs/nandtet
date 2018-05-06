@@ -39,5 +39,45 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    Not(in=instruction[15], out=aIns);
+    Not(in=aIns, out=cIns);
+
+    And(a=cIns, b=instruction[5], out=aluA); 
+    Mux16(a=instruction,b=outMval,sel=aluA,out=regloadA);
+    //Register A
+    Or(a=aIns,b=aluA,out=loadA); 
+    ARegister(in=regloadA,load=loadA,out=regA);
+    // Updates ALU based on if from memory or from A register
+    Mux16(a=regA,b=inM,sel=instruction[12],out=aorm);
+
+
+    //Load D Register
+    And(a=cIns, b=instruction[4], out=loadD);
+    DRegister(in=outMval,load=loadD,out=regD);
+
+    //ALU
+    ALU(x=regD,y=aorm,zx=instruction[11],nx=instruction[10],
+        zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],
+        out=outMval,zr=zr,ng=ng);
+    
+    Or16(a=false,b=outMval,out=outM);
+    Or16(a=false,b=regA,out[0..14]=addressM);
+    And(a=cIns,b=instruction[3],out=writeM);
+
+    //The PC part needs to also feed in inputs to determine where it jumps to next
+    Not(in=ng,out=gte);
+    Not(in=zr,out=nzr);
+    And(a=gte,b=nzr,out=gtz);
+
+    //Greater than or equal to zero jumps
+    And(a=instruction[0],b=gtz,out=jgt);
+    And(a=zr,b=instruction[1],out=jeq);
+    And(a=jgt,b=jeq,out=jge);
+
+    And(a=instruction[2],b=ng,out=jlt);
+    Or(a=jeq,b=jlt,out=jle);
+    Or(a=jle,b=jgt,out=jmpA);
+    And(a=cIns,b=jmpA,out=loadPC);
+    Not(in=loadPC,out=incPC); 
+    PC(in=regA,reset=reset,load=loadPC,inc=incPC,out[0..14]=pc);
 }
