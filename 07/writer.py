@@ -289,13 +289,16 @@ class Writer:
             elif cmd.ct == "C_PUSH" or cmd.ct == "C_POP":
                 ws = self.writePushPop(cmd)
             elif cmd.ct == "C_LABEL":
-                ws = self.writeLabel(cmd)
+                #ws = self.writeLabel(cmd)
+                pass
             elif cmd.ct == "C_GOTO":
-                ws = self.writeGoto(cmd)
+                #ws = self.writeGoto(cmd)
+                pass
             elif cmd.ct == "C_IF":
                 ws = self.writeIf()
             elif cmd.ct == "C_FUNCTION":
-                ws = self.writeCall()
+                #ws = self.writeCall()
+                pass
             elif cmd.ct == "C_RETURN":
                 ws = self.writeReturn()
             else:
