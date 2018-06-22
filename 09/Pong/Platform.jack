@@ -1,0 +1,36 @@
+/** 
+    Main Platform Class. A user and comp platform would inherit from this, but since Jack doesn'this
+    include object inheritance it will instead be all in one
+*/
+
+class Platform {
+    field int top_left_x;
+    field int top_right_x;
+    field int y;
+    field int depth;
+    field int momentum;
+
+    constructor Platform new (){
+        //Set starting positions
+        //Call initial draw
+    }
+
+    method void Draw(){
+        //update screen with box
+        //maybe should be static to save space?
+    }
+
+    method void Move(){
+        //get the keyboard input, change the position by that amount
+    }
+
+    method void update_left(){
+        //called by collision monitor to stop top_left_x going out of bounds
+    }
+
+    method void update_right(){
+        //called by collision monitor to stop top_right_x going out of bounds
+    }
+
+
+}

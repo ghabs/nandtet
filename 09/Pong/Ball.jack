@@ -1,0 +1,22 @@
+/** The ball object. Contains speed as attributes */
+
+class Ball {
+    field int speed_x;
+    field int speed_y;
+    field int x;
+    field int y;
+
+    constructor Ball new {
+        
+    }
+    method void Draw {
+        //draw new location
+        //add speed_x to x, speed_y to y
+        //call draw
+    }
+    method void UpdateDir(int new_x, int new_y){
+        //add new_y to speed_y
+        //add new_x to speed_x
+    }
+
+}

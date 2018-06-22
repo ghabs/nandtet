@@ -20,23 +20,25 @@ class Writer:
     
     def updateSP(self):
         return "@{}\nD=A\n@0\nM=D\n".format(self.sp)
+    
+    def _loadMemory(self):
+        self.sp += -1
+        s = "@{}\nD=M\n".format(self.sp)
+        self.sp += -1
+        return s
+
+    def _jmpComparison(self,type_jmp):
+        return "@eq.{}\nD;{}\n@{}\nM=0\n@n.{}\n0;JMP\n(eq.{})\n@{}\nM=1\n@n.{}\n0;JMP\n(n.{})\n".format(self.label, type_jmp, self.sp,self.label,self.label,self.sp,self.label,self.label)       
 
     def writeArithmetic(self, cmd):
         """Write out arithmetic function to file"""
         s = ""
         if cmd.ct == "C_ARITHMETIC":
             if cmd.a1 == "ADD":
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "D=M\n"
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "M=D+M\n"
+                s += self._loadMemory()
+                s += "@{}\nM=D+M\n".format(self.sp)
             if cmd.a1 == "SUB":
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "D=M\n"
-                self.sp += -1
+                s += self._loadMemory()
                 s += "@{}\n".format(self.sp)
                 s += "M=D-M\n"
             if cmd.a1 == "NEG":
@@ -48,81 +50,33 @@ class Writer:
                 s += "@{}\n".format(self.sp)
                 s += "M=!M\n"
             if cmd.a1 == "EQ":
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "D=M\n"
-                self.sp += -1
+                s += self._loadMemory()
                 s += "@{}\n".format(self.sp)
                 s += "D=D-M\n"
                 #Jump function that sets x == 1 if x&y are eq
                 #Rewrite to be function
-                s += "@eq.{}\n".format(self.label)
-                s += "D;JEQ\n"
-                s += "@{}\n".format(self.sp)
-                s += "M=0\n"
-                s += "@n.{}\n".format(self.label)
-                s += "0;JMP\n"
-                s += "(eq.{})\n".format(self.label)
-                s += "@{}\n".format(self.sp)
-                s += "M=1\n"
-                s += "@n.{}\n".format(self.label)
-                s += "0;JMP\n"            
-                s += "(n.{})\n".format(self.label)
+                s += self._jmpComparison("JEQ")
                 self.label += 1
             if cmd.a1 == "GT":            
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "D=M\n"
-                self.sp += -1
+                self._loadMemory()
                 s += "@{}\n".format(self.sp)
                 s += "D=M-D\n"
                 #Jump function that sets x == 1 if x>y
-                s += "@eq.{}\n".format(self.label)
-                s += "D;JGT\n"
-                s += "@{}\n".format(self.sp)
-                s += "M=0\n"
-                s += "@n.{}\n".format(self.label)
-                s += "0;JMP\n"
-                s += "(eq.{})\n".format(self.label)
-                s += "@{}\n".format(self.sp)
-                s += "M=1\n"
-                s += "@n.{}\n".format(self.label)
-                s += "0;JMP\n"            
-                s += "(n.{})\n".format(self.label)
+                s += self._jmpComparison("JGT")
                 self.label += 1
             if cmd.a1 == "LT":    
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "D=M\n"
-                self.sp += -1
+                self._loadMemory()
                 s += "@{}\n".format(self.sp)
                 s += "D=M-D\n"
                 #Jump function that sets x == 1 if x<y
-                s += "@eq.{}\n".format(self.label)
-                s += "D;JLT\n"
-                s += "@{}\n".format(self.sp)
-                s += "M=0\n"
-                s += "@n.{}\n".format(self.label)
-                s += "0;JMP\n"
-                s += "(eq.{})\n".format(self.label)
-                s += "@{}\n".format(self.sp)
-                s += "M=1\n"
-                s += "@n.{}\n".format(self.label)
-                s += "0;JMP\n"            
-                s += "(n.{})\n".format(self.label)
+                s += self._jmpComparison("JLT")
                 self.label += 1
             if cmd.a1 == "AND":
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "D=M\n"
-                self.sp += -1
+                self._loadMemory()
                 s += "@{}\n".format(self.sp)
                 s += "M=D&M\n"
             if cmd.a1 == "OR":
-                self.sp += -1
-                s += "@{}\n".format(self.sp)
-                s += "D=M\n"
-                self.sp += -1
+                self._loadMemory()
                 s += "@{}\n".format(self.sp)
                 s += "M=D|M\n"
         s += self.changeSP(1)
@@ -139,8 +93,7 @@ class Writer:
     def popStack(self, memorySeg, off = 0):
         s = ""
         self.sp += -1
-        s += "@{}\n".format(self.sp)
-        s += "D=M\n"
+        s += "@{}\nD=M\n".format(self.sp)
         s += "@{}\n".format(memorySeg + int(off))
         s += "M=D\n"
         return s
@@ -159,8 +112,7 @@ class Writer:
         s = ""
         #push/pop
         self.sp += -1
-        s = "@{}\n".format(self.sp)
-        s += "D=M\n"
+        s = "@{}\nD=M\n".format(self.sp)
         s += "@{}.{}\n".format(self.f.split(".")[0], alloc)
         s += "M=D\n"        
         return s
@@ -217,12 +169,8 @@ class Writer:
     def writeLabel(self, label, lnum):
         return "({}.{})\n".format(label,lnum)
 
-    
     def writeGoto(self, funcName, label):
         return "{}.{}".format(funcName,label)
-    
-    def writeIf(self):
-        pass
     
     def _pushFrame(self):
         s = ""
@@ -274,7 +222,7 @@ class Writer:
     def writeFunction(self, f, k):
         s = ""
         s += self.writeLabel(f,0)
-        for i in range(k):
+        for _ in range(k):
             s += self.writePushPop(Command("C_PUSH", "LOCAL", 0))
         self.funcName = f
         return
@@ -293,11 +241,8 @@ class Writer:
             elif cmd.ct == "C_GOTO":
                 #ws = self.writeGoto(cmd)
                 pass
-            elif cmd.ct == "C_IF":
-                ws = self.writeIf()
             elif cmd.ct == "C_FUNCTION":
-                #ws = self.writeCall()
-                pass
+                ws = self.writeCall()
             elif cmd.ct == "C_RETURN":
                 ws = self.writeReturn()
             else:

@@ -1,0 +1,22 @@
+/** Monitor of gameplay that checks if a ball has gone out of bounds or has hit a platform
+    or if a platform has gone out of bounds or hit platform wall
+ */
+
+ class CollisionMonitor {
+     field Ball a;
+     field Wall wall_left;
+     field Wall wall_right;
+     field Platform user_platform;
+     field Platform bot_platform;
+     constructor CollisionMonitor new(){
+         //set fields
+     }
+     method void CheckOverlapBall(){
+         //if ball x in same position as walls, then reverse x of ball
+         //if ball y in same position as platform, give ball that momentum
+     }
+     method void CheckOverlapPlatform(){
+         //if user platform has hit wall, bounce it back five frames
+     }
+
+ }
